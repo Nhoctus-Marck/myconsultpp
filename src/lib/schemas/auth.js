@@ -8,3 +8,13 @@ export const loginSchema = z.object({
     .regex(/[A-Z]/,"Debe tener al menos una Mayúscula")
     .min(6,'La contraseña debe tener almenos 6 caracteres')
 })
+
+export const registerSchema = z.object({
+  firstName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string()
+    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .regex(/[A-Z]/, "Debe tener al menos una Mayúscula")
+    .regex(/[0-9]/, "Debe tener al menos un Número")
+    .regex(/[^a-zA-Z0-9]/, "Debe tener al menos un Símbolo (ej: @, $, !)")
+});

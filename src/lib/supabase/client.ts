@@ -6,7 +6,7 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       auth: {
-        persistSession: false, // <--- CAMBIA ESTO A FALSE Para quitar el persist
+        persistSession: true, // <--- CAMBIA ESTO A FALSE Para quitar el persist
       }
     }
   )
