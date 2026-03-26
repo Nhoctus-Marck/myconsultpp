@@ -36,7 +36,7 @@ export const LoginForm = () => {
       setIsLoading(false);
       return;
     }
-    router.push("/");
+    router.push("/select_clinic");
     router.refresh();
   }
 

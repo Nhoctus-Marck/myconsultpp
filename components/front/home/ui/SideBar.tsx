@@ -2,11 +2,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarDays, CreditCard, BarChart3, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, CreditCard, BarChart3, ChevronLeft, ChevronRight, Building2, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 
 const menuItems = [
   { name: "Dashboard", href: "dashboard", icon: LayoutDashboard, roles: ["admin", "doctor", "employ"] },
+  { name: "Doctores", href: "dashboard/doctors", icon: Stethoscope, roles: ["admin"] },
   { name: "Patients", href: "patients", icon: Users, roles: ["admin", "doctor"] },
   { name: "Turnos", href: "turnos", icon: CalendarDays, roles: ["admin", "doctor", "employ"] },
   { name: "Pagos", href: "pagos", icon: CreditCard, roles: ["admin"] },
@@ -94,7 +95,7 @@ export function Sidebar({
       {!isCollapsed && (
         <div className="p-4 border-t bg-gray-50/50">
           <Link 
-            href="/select-clinic" 
+            href="/select_clinic" 
             className="flex items-center justify-center gap-2 text-xs font-semibold text-blue-600 hover:bg-blue-100 p-2 rounded-lg transition-colors"
           >
             ← Cambiar de Clínica

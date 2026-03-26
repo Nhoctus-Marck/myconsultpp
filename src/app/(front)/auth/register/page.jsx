@@ -12,14 +12,15 @@ export default async function page() {
 
   if (!user) redirect("/auth/login");
 
-  const { data: membership } = await supabase
+  const { data: memberships } = await supabase
     .from("memberships")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+    .select("role, clinic_id")
+    .eq("user_id", user.id);
 
-  if (membership?.role !== "admin") {
-    redirect("/dashboard");
+  const isAdmin = memberships?.some(m => m.role === "admin");
+
+  if (!isAdmin) {
+    redirect("/select_clinic");
   }
 
   return <RegisterForm />;
