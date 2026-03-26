@@ -20,9 +20,19 @@ export default async function DoctorsPage({
     }
   );
 
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!serviceKey) {
+    return (
+      <div className="p-6">
+        <p className="text-red-500">Error: Falta configuración del servidor</p>
+      </div>
+    );
+  }
+
   const supabaseAdmin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    serviceKey
   );
 
   const { data: doctors } = await supabaseAdmin
