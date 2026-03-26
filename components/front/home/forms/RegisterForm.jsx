@@ -38,7 +38,7 @@ export const RegisterForm = () => {
 
     // Si todo sale bien, puedes limpiar el form o avisar que se creó
     alert("Empleado creado con éxito");
-    window.location.href = "/";
+    window.location.href = "/front/auth/login";
   }
 
   return (
@@ -121,7 +121,7 @@ export const RegisterForm = () => {
         <footer className="mt-8 text-center text-sm text-gray-600">
           ¿Ya tienes una cuenta?{" "}
           <button
-            onClick={() => router.push("/login")}
+            onClick={() => router.push("/front/auth/login")}
             className="text-blue-600 font-bold hover:underline"
           >
             Inicia sesión

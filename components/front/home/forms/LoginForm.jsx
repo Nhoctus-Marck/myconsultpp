@@ -36,7 +36,8 @@ export const LoginForm = () => {
       setIsLoading(false);
       return;
     }
-    window.location.href = "/";
+    router.push("/");
+    router.refresh();
   }
 
   return (
@@ -95,7 +96,8 @@ export const LoginForm = () => {
           <footer className="mt-8 text-center text-sm text-gray-600">
             ¿No tienes una cuenta?{" "}
             <button
-              onClick={() => router.push("/register")}
+              type="button" // <--- AGREGA ESTO
+              onClick={() => router.push("/auth/register")}
               className="text-blue-600 font-bold hover:underline"
             >
               Regístrate

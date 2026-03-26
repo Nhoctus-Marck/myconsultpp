@@ -11,7 +11,7 @@ export const LogoutButton = () => {
     
     // 2. Limpiamos caché y redirigimos al login
     // Usamos window.location para asegurar que el middleware detecte el cambio de cookie
-    window.location.href = "/login";
+    window.location.href = "/auth/login";
   };
 
   return (

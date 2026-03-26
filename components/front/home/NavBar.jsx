@@ -26,7 +26,7 @@ export const NavBar = ({ user }) => {
           <LogoutButton />
         ) : (
           <Link 
-            href="/login" 
+            href="/auth/login" 
             className="w-full h-full flex items-center justify-center hover:bg-lime-800 hover:text-white transition-colors"
           >
             Iniciar sesión

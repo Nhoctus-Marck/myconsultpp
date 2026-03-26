@@ -1,6 +1,6 @@
 import React from 'react'
-import { RegisterForm } from '../../../components/front/home/forms/RegisterForm'
-import { createClient } from "../../lib/supabase/server"
+import { RegisterForm } from '../../../../../components/front/home/forms/RegisterForm'
+import { createClient } from "../../../../lib/supabase/server"
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -10,7 +10,7 @@ export default async function page() {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
+  if (!user) redirect("/auth/login");
 
   const { data: membership } = await supabase
     .from("memberships")
