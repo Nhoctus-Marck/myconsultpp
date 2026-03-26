@@ -30,7 +30,7 @@ export default async function DoctorsPage({
     .select("*")
     .eq("clinic_id", clinic_id);
 
-  let usersMap = {};
+  let usersMap: Record<string, any> = {};
   if (doctors && doctors.length > 0) {
     const doctorUserIds = doctors.map((d: any) => d.user_id).filter(Boolean);
     
@@ -41,7 +41,7 @@ export default async function DoctorsPage({
         .in("id", doctorUserIds);
       
       if (users) {
-        usersMap = users.reduce((acc: any, user: any) => {
+        usersMap = users.reduce((acc: Record<string, any>, user: any) => {
           acc[user.id] = user;
           return acc;
         }, {});
