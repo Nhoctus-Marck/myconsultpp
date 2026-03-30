@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { Plus, X, DollarSign } from "lucide-react";
+import { Plus, X, DollarSign, FileText } from "lucide-react";
+import Link from "next/link";
 
 export default async function PagosPage({ params }: { params: Promise<{ clinic_id: string }> }) {
   const { clinic_id } = await params;
@@ -81,6 +82,7 @@ export default async function PagosPage({ params }: { params: Promise<{ clinic_i
                 <th className="text-left p-4 text-sm font-medium text-slate-500">Método</th>
                 <th className="text-left p-4 text-sm font-medium text-slate-500">Fecha</th>
                 <th className="text-left p-4 text-sm font-medium text-slate-500">Estado</th>
+                <th className="text-left p-4 text-sm font-medium text-slate-500"></th>
               </tr>
             </thead>
             <tbody>
@@ -107,11 +109,21 @@ export default async function PagosPage({ params }: { params: Promise<{ clinic_i
                         </span>
                       )}
                     </td>
+                    <td className="p-4">
+                      {payment.status === "paid" && (
+                        <Link
+                          href={`pagos/${payment.id}`}
+                          className="flex items-center gap-1 text-blue-600 hover:underline text-sm"
+                        >
+                          <FileText size={16} /> Comprobante
+                        </Link>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">
+                  <td colSpan={6} className="p-8 text-center text-slate-500">
                     No hay pagos registrados
                   </td>
                 </tr>
