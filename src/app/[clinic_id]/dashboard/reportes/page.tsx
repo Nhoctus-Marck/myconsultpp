@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { DollarSign, Users, CalendarX, TrendingUp } from "lucide-react";
+import { DollarSign, Users, CalendarX, TrendingUp, Printer } from "lucide-react";
+import Link from "next/link";
 
 export default async function ReportesPage({ params }: { params: Promise<{ clinic_id: string }> }) {
   const { clinic_id } = await params;
@@ -120,6 +121,15 @@ export default async function ReportesPage({ params }: { params: Promise<{ clini
             <p className="text-3xl font-bold text-slate-800">{stat.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-8">
+        <Link
+          href={`reportes/dia`}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+        >
+          <Printer size={20} /> Imprimir Reporte del Día
+        </Link>
       </div>
     </div>
   );
