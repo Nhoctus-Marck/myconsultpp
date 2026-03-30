@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarDays, CreditCard, BarChart3, ChevronLeft, ChevronRight, Building2, Stethoscope } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, CreditCard, BarChart3, ChevronLeft, ChevronRight, Building2, Stethoscope, UserCog } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 
 const menuItems = [
@@ -13,6 +13,7 @@ const menuItems = [
   { name: "Mis Turnos", href: "dashboard/mis-turnos", icon: CalendarDays, roles: ["doctor"] },
   { name: "Pagos", href: "dashboard/pagos", icon: CreditCard, roles: ["admin", "receptionist"] },
   { name: "Reportes", href: "dashboard/reportes", icon: BarChart3, roles: ["admin", "receptionist"] },
+  { name: "Empleados", href: "dashboard/empleados", icon: UserCog, roles: ["admin"] },
 ];
 
 // 1. Agregamos 'clinicName' a las props
