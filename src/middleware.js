@@ -45,7 +45,7 @@ export async function middleware(request) {
       url.pathname = `/${memberships[0].clinic_id}/dashboard`;
       return NextResponse.redirect(url);
     } else if (memberships && memberships.length > 1) {
-      url.pathname = "/select-clinic";
+      url.pathname = "/select_clinic";
       return NextResponse.redirect(url);
     }
     // Si no tiene clínicas aún, podrías mandarlo a una página de error o creación
@@ -73,7 +73,7 @@ export const config = {
     "/",                // <--- INDISPENSABLE para que el middleware actúe al entrar
     "/auth/login",
     "/auth/register",
-    "/select-clinic",
+    "/select_clinic",
     "/:clinic_id/dashboard/:path*", 
   ],
 };

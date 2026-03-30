@@ -29,6 +29,7 @@ export default async function ClinicDashboard({
 
   return (
     <div className="p-6">
+      <h1>Bienvenido:</h1>
       <h1 className="text-2xl font-bold text-slate-800">
         Panel de Control: {clinic?.name || "Cargando..."}
       </h1>
