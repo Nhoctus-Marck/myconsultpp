@@ -1,13 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
   const clinicId = searchParams.get("clinic_id");
 
   if (!clinicId) {
-    return Response.json({ error: "Missing clinic_id" }, { status: 400 });
+    return NextResponse.json({ error: "Missing clinic_id" }, { status: 400 });
   }
 
   const cookieStore = await cookies();
@@ -18,35 +19,75 @@ export async function GET(request: Request) {
     { cookies: { getAll: () => cookieStore.getAll() } }
   );
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!serviceKey) {
-    return Response.json({ error: "Service key not configured" }, { status: 500 });
+  if (!user) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  const supabaseAdmin = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    serviceKey
-  );
+  const { data: membership } = await supabase
+    .from("memberships")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("clinic_id", clinicId)
+    .single();
 
-  const { data: appointments } = await supabaseAdmin
-    .from("appointments")
-    .select("id, appointment_date, status, patients(name, dni)")
-    .eq("clinic_id", clinicId);
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseAdmin = serviceKey
+    ? createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey)
+    : supabase;
 
-  return Response.json({ appointments: appointments || [] });
+  if (membership?.role === "doctor") {
+    const { data: doctor } = await supabaseAdmin
+      .from("doctors")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("clinic_id", clinicId)
+      .single();
+
+    if (!doctor) {
+      return NextResponse.json({ patients: [] });
+    }
+
+    const { data: appointments } = await supabaseAdmin
+      .from("appointments")
+      .select("patient_id")
+      .eq("doctor_id", doctor.id)
+      .eq("clinic_id", clinicId);
+
+    const patientIds = [...new Set(appointments?.map((a) => a.patient_id) || [])];
+
+    if (patientIds.length === 0) {
+      return NextResponse.json({ patients: [], role: "doctor" });
+    }
+
+    const { data: patients } = await supabaseAdmin
+      .from("patients")
+      .select("*")
+      .in("id", patientIds)
+      .order("created_at", { ascending: false });
+
+    return NextResponse.json({ patients: patients || [], role: "doctor" });
+  }
+
+  const { data: patients } = await supabaseAdmin
+    .from("patients")
+    .select("*")
+    .eq("clinic_id", clinicId)
+    .order("created_at", { ascending: false });
+
+  return NextResponse.json({ patients: patients || [], role: membership?.role || "user" });
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { clinic_id, appointment_id, amount, payment_method } = body;
+  const { clinic_id, name, dni, birth_date } = body;
 
-  if (!clinic_id || !amount || !payment_method) {
+  if (!clinic_id || !name || !dni) {
     return Response.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
   if (!serviceKey) {
     return Response.json({ error: "Service key not configured" }, { status: 500 });
   }
@@ -56,15 +97,12 @@ export async function POST(request: Request) {
     serviceKey
   );
 
-  const { error } = await supabaseAdmin
-    .from("payments")
-    .insert({
-      clinic_id,
-      appointment_id: appointment_id || null,
-      amount,
-      payment_method,
-      status: "paid",
-    });
+  const { error } = await supabaseAdmin.from("patients").insert({
+    clinic_id,
+    name,
+    dni,
+    birth_date: birth_date || null,
+  });
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });

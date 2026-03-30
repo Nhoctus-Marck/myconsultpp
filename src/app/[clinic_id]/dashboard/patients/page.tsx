@@ -21,12 +21,9 @@ export default function PatientsPage({ params }: { params: Promise<{ clinic_id: 
   }, []);
 
   async function fetchPatients(clinic_id: string) {
-    const { data } = await supabase
-      .from("patients")
-      .select("*")
-      .eq("clinic_id", clinic_id)
-      .order("created_at", { ascending: false });
-    setPatients(data || []);
+    const res = await fetch(`/api/patients?clinic_id=${clinic_id}`);
+    const data = await res.json();
+    setPatients(data.patients || []);
   }
 
   async function handleSubmit(formData: FormData) {
