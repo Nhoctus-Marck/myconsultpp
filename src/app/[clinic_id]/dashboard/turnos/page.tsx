@@ -1,57 +1,66 @@
-import { createServerClient } from "@supabase/ssr";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+"use client";
 import Link from "next/link";
+import { useState, useEffect, use } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
-export default async function TurnosPage({ params }: { params: Promise<{ clinic_id: string }> }) {
-  const { clinic_id } = await params;
-  const cookieStore = await cookies();
+export default function TurnosPage({ params }: { params: Promise<{ clinic_id: string }> }) {
+  const { clinic_id } = use(params);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const clinicId = clinic_id;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } }
-  );
+  useEffect(() => {
+    async function fetchAppointments() {
+      setLoading(true);
+      const month = currentDate.getMonth() + 1;
+      const year = currentDate.getFullYear();
+      
+      const res = await fetch(`/api/appointments?clinic_id=${clinicId}&month=${month}&year=${year}`);
+      const data = await res.json();
+      
+      setAppointments(data || []);
+      setLoading(false);
+    }
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  const supabaseAdmin = serviceKey 
-    ? createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey)
-    : supabase;
-
-  const { data: appointments } = await supabaseAdmin
-    .from("appointments")
-    .select("*, patients(name, dni), doctors(id, specialty)")
-    .eq("clinic_id", clinic_id)
-    .order("appointment_date", { ascending: true });
+    fetchAppointments();
+  }, [currentDate, clinicId]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDay = firstDay.getDay();
-    return { daysInMonth, startingDay };
+    return { daysInMonth: lastDay.getDate(), startingDay: firstDay.getDay() };
   };
 
-  const today = new Date();
-  const currentDate = today;
   const { daysInMonth, startingDay } = getDaysInMonth(currentDate);
 
   const getAppointmentsForDay = (day: number) => {
     const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
     const targetDateStr = targetDate.toISOString().split("T")[0];
-    return (appointments || []).filter((apt: any) => {
-      const aptDate = new Date(apt.appointment_date);
-      const aptDateStr = aptDate.toISOString().split("T")[0];
-      return aptDateStr === targetDateStr && apt.status !== "completed";
+    return appointments.filter((apt: any) => {
+      const aptDate = new Date(apt.appointment_date).toISOString().split("T")[0];
+      return aptDate === targetDateStr && apt.status === "scheduled";
     });
+  };
+
+  const prevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
   const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+  const today = new Date();
+  const isToday = (day: number) => 
+    today.getDate() === day && 
+    today.getMonth() === currentDate.getMonth() && 
+    today.getFullYear() === currentDate.getFullYear();
 
   return (
     <div className="p-6">
@@ -65,21 +74,19 @@ export default async function TurnosPage({ params }: { params: Promise<{ clinic_
         </Link>
       </div>
 
-      {/* Calendar */}
+        {/* Calendar */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-slate-50">
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-slate-200 rounded-lg">
-              <ChevronLeft size={20} />
-            </button>
-            <h2 className="text-lg font-semibold">
-              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-            </h2>
-            <button className="p-2 hover:bg-slate-200 rounded-lg">
-              <ChevronRight size={20} />
-            </button>
-          </div>
+          <button onClick={prevMonth} className="p-2 hover:bg-slate-200 rounded-lg">
+            <ChevronLeft size={20} />
+          </button>
+          <h2 className="text-lg font-semibold">
+            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+          </h2>
+          <button onClick={nextMonth} className="p-2 hover:bg-slate-200 rounded-lg">
+            <ChevronRight size={20} />
+          </button>
         </div>
 
         {/* Day names */}
@@ -99,7 +106,6 @@ export default async function TurnosPage({ params }: { params: Promise<{ clinic_
           {Array.from({ length: daysInMonth }).map((_, i) => {
             const day = i + 1;
             const dayAppointments = getAppointmentsForDay(day);
-            const isToday = new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
 
             return (
               <div
@@ -107,7 +113,7 @@ export default async function TurnosPage({ params }: { params: Promise<{ clinic_
                 className="min-h-[100px] border-b border-r p-1 hover:bg-blue-50 transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <div className={`text-sm font-medium ${isToday ? "bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center" : "text-slate-700"}`}>
+                  <div className={`text-sm font-medium ${isToday(day) ? "bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center" : "text-slate-700"}`}>
                     {day}
                   </div>
                   <a

@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 export default function NewTurnoPage() {
   const params = useParams();
@@ -14,7 +12,6 @@ export default function NewTurnoPage() {
   const [patients, setPatients] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,54 +21,31 @@ export default function NewTurnoPage() {
   }, [clinicId]);
 
   async function fetchData(clinic_id: string) {
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    if (serviceKey) {
-      const supabaseAdmin = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        serviceKey
-      );
-
-      const { data: patientsData } = await supabaseAdmin
-        .from("patients")
-        .select("id, name, dni")
-        .eq("clinic_id", clinic_id);
-      setPatients(patientsData || []);
-
-      const { data: doctorsData } = await supabaseAdmin
-        .from("doctors")
-        .select("id, specialty")
-        .eq("clinic_id", clinic_id);
-      setDoctors(doctorsData || []);
-    }
+    const res = await fetch(`/api/appointments?clinic_id=${clinic_id}&type=form`);
+    const data = await res.json();
+    setPatients(data.patients || []);
+    setDoctors(data.doctors || []);
   }
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    if (!serviceKey) {
-      alert("Service role key not configured");
-      setIsLoading(false);
-      return;
-    }
 
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      serviceKey
-    );
-
-    const { error } = await supabaseAdmin.from("appointments").insert({
-      clinic_id: clinicId,
-      patient_id: formData.get("patient_id"),
-      doctor_id: formData.get("doctor_id"),
-      appointment_date: formData.get("appointment_date"),
-      status: "scheduled",
-      notes: formData.get("notes"),
+    const res = await fetch("/api/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clinic_id: clinicId,
+        patient_id: formData.get("patient_id"),
+        doctor_id: formData.get("doctor_id"),
+        appointment_date: formData.get("appointment_date"),
+        notes: formData.get("notes"),
+      }),
     });
 
-    if (error) {
-      alert("Error: " + error.message);
+    const result = await res.json();
+
+    if (result.error) {
+      alert("Error: " + result.error);
       setIsLoading(false);
     } else {
       router.push("../turnos");
