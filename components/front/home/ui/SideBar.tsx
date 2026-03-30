@@ -9,7 +9,8 @@ const menuItems = [
   { name: "Dashboard", href: "dashboard", icon: LayoutDashboard, roles: ["admin", "doctor", "receptionist"] },
   { name: "Doctores", href: "dashboard/doctors", icon: Stethoscope, roles: ["admin"] },
   { name: "Patients", href: "dashboard/patients", icon: Users, roles: ["admin", "doctor", "receptionist"] },
-  { name: "Turnos", href: "dashboard/turnos", icon: CalendarDays, roles: ["admin", "doctor", "receptionist"] },
+  { name: "Turnos", href: "dashboard/turnos", icon: CalendarDays, roles: ["admin", "receptionist"] },
+  { name: "Mis Turnos", href: "dashboard/mis-turnos", icon: CalendarDays, roles: ["doctor"] },
   { name: "Pagos", href: "dashboard/pagos", icon: CreditCard, roles: ["admin", "receptionist"] },
   { name: "Reportes", href: "dashboard/reportes", icon: BarChart3, roles: ["admin", "receptionist"] },
 ];

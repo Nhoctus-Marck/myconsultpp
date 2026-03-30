@@ -32,6 +32,7 @@ export default async function ClinicDashboard({
     .single();
 
   const { data: { user } } = await supabase.auth.getUser();
+  const userName = user?.user_metadata?.name || user?.email?.split("@")[0] || "Usuario";
 
   const { data: membership } = await supabase
     .from("memberships")
@@ -89,10 +90,11 @@ export default async function ClinicDashboard({
     <div className="p-6">
       <div className="flex justify-between items-start">
         <div>
+          <p className="text-sm text-slate-500">Bienvenido, {userName}</p>
           <h1 className="text-2xl font-bold text-slate-800">
             Panel de Control: {clinic?.name || "Cargando..."}
           </h1>
-          <p className="text-sm text-slate-500 mt-2">{new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p className="text-sm text-slate-500 mt-1">{new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
         <div className={`px-4 py-2 rounded-full text-sm font-medium ${
           membership?.role === 'admin' ? 'bg-purple-100 text-purple-700' :
