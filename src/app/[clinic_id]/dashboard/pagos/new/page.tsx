@@ -32,7 +32,7 @@ export default function NewPagoPage() {
 
   async function fetchData() {
     try {
-      const response = await fetch(`/api/patients?clinic_id=${clinicId}`);
+      const response = await fetch(`/api/turnos-sin-pagar?clinic_id=${clinicId}`);
       const data = await response.json();
       
       if (data.error) {

@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { Plus, X, DollarSign, FileText } from "lucide-react";
+import { Plus, X, DollarSign, FileText, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 export default async function PagosPage({ params }: { params: Promise<{ clinic_id: string }> }) {
@@ -117,6 +117,18 @@ export default async function PagosPage({ params }: { params: Promise<{ clinic_i
                         >
                           <FileText size={16} /> Comprobante
                         </Link>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      {payment.status === "paid" && (
+                        <div className="flex gap-2">
+                          <Link
+                            href={`pagos/${payment.id}/edit`}
+                            className="p-1 text-slate-500 hover:text-blue-600"
+                          >
+                            <Pencil size={16} />
+                          </Link>
+                        </div>
                       )}
                     </td>
                   </tr>
