@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { ArrowLeft, Check, X, Calendar, FileText } from "lucide-react";
+import { ArrowLeft, Check, X, Calendar, FileText, DollarSign } from "lucide-react";
 import { redirect } from "next/navigation";
 
 async function updateAppointmentStatus(appointmentId: string, status: string, clinicId: string) {
@@ -53,6 +53,12 @@ export default async function TurnoDetailPage({ params }: {
     .select("*, patients(name, dni, birth_date), doctors(id, specialty)")
     .eq("id", appointment_id)
     .eq("clinic_id", clinic_id)
+    .single();
+
+  const { data: payment } = await supabaseAdmin
+    .from("payments")
+    .select("id, amount, payment_method, status")
+    .eq("appointment_id", appointment_id)
     .single();
 
   if (!appointment) {
@@ -141,6 +147,35 @@ export default async function TurnoDetailPage({ params }: {
                 <X size={20} /> Cancelar Turno
               </button>
             </form>
+          </div>
+        )}
+
+        {appointment.status === "completed" && !payment && (
+          <div className="mt-6">
+            <Link
+              href={`../pagos/new?appointment_id=${appointment_id}`}
+              className="flex items-center justify-center gap-2 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              <DollarSign size={20} /> Registrar Pago
+            </Link>
+          </div>
+        )}
+
+        {payment && (
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-700">Pago Registrado</p>
+                <p className="font-bold text-green-800">${Number(payment.amount).toLocaleString("es-AR")}</p>
+                <p className="text-sm text-green-600 capitalize">{payment.payment_method}</p>
+              </div>
+              <Link
+                href={`../pagos/${payment.id}`}
+                className="text-green-700 hover:underline text-sm"
+              >
+                Ver Comprobante
+              </Link>
+            </div>
           </div>
         )}
       </div>

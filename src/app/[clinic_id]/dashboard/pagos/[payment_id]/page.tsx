@@ -11,7 +11,7 @@ export default function ComprobantePage({ params }: { params: Promise<{ clinic_i
 
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch(`/api/payments?payment_id=${payment_id}&clinic_id=${clinic_id}`);
+      const res = await fetch(`/api/payment-get?payment_id=${payment_id}&clinic_id=${clinic_id}`);
       const data = await res.json();
 
       if (data.error) {

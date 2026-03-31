@@ -49,7 +49,7 @@ export default function NewPagoPage() {
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
     
-    const response = await fetch("/api/payments", {
+    const response = await fetch("/api/pagos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -68,7 +68,7 @@ export default function NewPagoPage() {
       alert("Error: " + result.error);
       setIsLoading(false);
     } else {
-      router.push("../pagos");
+      router.push(`/${clinicId}/dashboard/pagos`);
       router.refresh();
     }
   }

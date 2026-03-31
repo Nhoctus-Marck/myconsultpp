@@ -48,8 +48,8 @@ export default function EditPagoPage({ params }: { params: Promise<{ clinic_id: 
     if (result.error) {
       alert("Error: " + result.error);
     } else {
-      alert("Pago actualizado correctamente");
-      router.push(`../pagos`);
+      router.push(`/${clinic_id}/dashboard/pagos`);
+      router.refresh();
     }
     setSaving(false);
   }
@@ -69,7 +69,8 @@ export default function EditPagoPage({ params }: { params: Promise<{ clinic_id: 
     if (result.error) {
       alert("Error: " + result.error);
     } else {
-      router.push("../pagos");
+      router.push(`/${clinic_id}/dashboard/pagos`);
+      router.refresh();
     }
     setSaving(false);
   }
